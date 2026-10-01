@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EDS Campaign Agent</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --eds-blue: #286986;
+      --eds-deep: #123b40;
+      --eds-gold: #e8b400;
+      --surface: color-mix(in srgb, Canvas 94%, var(--eds-blue) 6%);
+      --line: color-mix(in srgb, CanvasText 14%, transparent);
+      --muted: color-mix(in srgb, CanvasText 62%, transparent);
+      --shadow: 0 18px 50px rgba(0,0,0,.10);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: Canvas;
+      color: CanvasText;
+    }
+    .shell { max-width: 980px; margin: 0 auto; padding: 30px 26px 52px; }
+    .hero {
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      padding: 24px 26px; border: 1px solid var(--line); border-radius: 24px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--eds-blue) 14%, Canvas), color-mix(in srgb, var(--eds-gold) 8%, Canvas));
+      box-shadow: var(--shadow);
+    }
+    .brand { display:flex; align-items:center; gap:16px; min-width:0; }
+    .mark {
+      width: 76px; height: 76px; flex: 0 0 76px; border-radius: 23px;
+      display:grid; place-items:center; position:relative; overflow:hidden;
+      background: var(--eds-blue); color:#fff; font-weight:900; letter-spacing:-2px; font-size:24px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+    }
+    .mark:before {
+      content:""; position:absolute; width:58px; height:22px; right:-10px; bottom:10px;
+      background:var(--eds-gold); transform:skewX(-32deg) rotate(-6deg); border-radius:4px;
+    }
+    .mark span { position:relative; z-index:1; text-shadow:0 1px 6px rgba(0,0,0,.25); }
+    .hero h1 { margin:0 0 5px; font-size: clamp(26px,4vw,42px); letter-spacing:-1.5px; }
+    .hero p { margin:0; color:var(--muted); font-size:15px; }
+    .badge {
+      padding:9px 12px; border-radius:999px; background:color-mix(in srgb,var(--eds-gold) 18%,Canvas);
+      border:1px solid color-mix(in srgb,var(--eds-gold) 45%,transparent); font-weight:700; font-size:12px;
+      white-space:nowrap;
+    }
+    .grid { display:grid; grid-template-columns: 1.2fr .8fr; gap:18px; margin-top:20px; }
+    .card { border:1px solid var(--line); border-radius:20px; padding:22px; background:var(--surface); }
+    .card h2 { margin:0 0 4px; font-size:18px; }
+    .card .sub { margin:0 0 18px; color:var(--muted); font-size:13px; }
+    .drop {
+      border:1.5px dashed color-mix(in srgb,var(--eds-blue) 58%,var(--line));
+      border-radius:16px; padding:24px; text-align:center; background:color-mix(in srgb,var(--eds-blue) 5%,Canvas);
+    }
+    .drop strong { display:block; font-size:15px; margin-bottom:4px; }
+    .drop small { color:var(--muted); }
+    .row { display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-top:14px; }
+    button {
+      border:0; border-radius:12px; font:inherit; font-weight:750; padding:11px 15px; cursor:pointer;
+      transition:.15s transform,.15s opacity;
+    }
+    button:hover { transform:translateY(-1px); }
+    button:disabled { opacity:.55; cursor:wait; transform:none; }
+    .primary { background:var(--eds-blue); color:white; }
+    .secondary { background:color-mix(in srgb,CanvasText 8%,Canvas); color:CanvasText; border:1px solid var(--line); }
+    .generate { width:100%; margin-top:16px; padding:14px 18px; font-size:15px; background:var(--eds-deep); color:white; }
+    .file-pill {
+      margin-top:12px; display:none; align-items:center; gap:8px; padding:10px 12px; border-radius:12px;
+      border:1px solid var(--line); font-size:13px; overflow:hidden;
+    }
+    .file-pill.show { display:flex; }
+    .file-pill span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    label { display:block; font-size:12px; font-weight:800; margin:13px 0 6px; }
+    input[type="text"], textarea {
+      width:100%; border:1px solid var(--line); border-radius:12px; padding:11px 12px;
+      background:Canvas; color:CanvasText; font:inherit; outline:none;
+    }
+    textarea { min-height:92px; resize:vertical; }
+    input:focus, textarea:focus { border-color:var(--eds-blue); box-shadow:0 0 0 3px color-mix(in srgb,var(--eds-blue) 14%,transparent); }
+    .checklist { display:grid; gap:10px; margin-top:14px; }
+    .check { display:flex; gap:10px; align-items:flex-start; font-size:13px; }
+    .tick {
+      width:20px; height:20px; flex:0 0 20px; border-radius:6px; display:grid; place-items:center;
+      background:color-mix(in srgb,var(--eds-blue) 12%,Canvas); color:var(--eds-blue); font-weight:900;
+    }
+    .status {
+      margin-top:14px; padding:11px 12px; border-radius:12px; display:none; font-size:13px; line-height:1.45;
+      border:1px solid var(--line); background:Canvas;
+    }
+    .status.show { display:block; }
+    .status.error { border-color:#b42318; color:#b42318; }
+    .status.ok { border-color:#16803c; color:#16803c; }
+    .foot { margin-top:18px; color:var(--muted); font-size:11px; text-align:center; }
+    @media (max-width: 760px) {
+      .shell { padding:18px 14px 36px; }
+      .grid { grid-template-columns:1fr; }
+      .hero { align-items:flex-start; padding:20px; }
+      .badge { display:none; }
+      .mark { width:62px; height:62px; flex-basis:62px; border-radius:18px; font-size:20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="brand">
+        <div class="mark" aria-label="EDS"><span>EDS</span></div>
+        <div>
+          <h1>EDS Campaign Agent</h1>
+          <p>Email Campaign Draft Studio · Blue Sky Travel</p>
+        </div>
+      </div>
+      <div class="badge">B2B Campaign Workspace</div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>New Email Blast Campaign</h2>
+        <p class="sub">Upload the designed brochure, then add only the campaign-specific context you want EDS to use.</p>
+
+        <div class="drop">
+          <strong id="dropTitle">Choose your offer brochure</strong>
+          <small>PDF, DOCX, TXT or MD · up to 20 MB</small>
+          <div class="row">
+            <button class="primary" id="uploadBtn" type="button">Upload brochure</button>
+            <button class="secondary" id="libraryBtn" type="button">Choose from ChatGPT</button>
+          </div>
+          <input id="fileInput" type="file" accept=".pdf,.docx,.txt,.md,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown" hidden />
+          <div id="filePill" class="file-pill"><b>📎</b><span id="fileName"></span></div>
+        </div>
+
+        <label for="audience">Audience / Client</label>
+        <input id="audience" type="text" placeholder="Example: Travel Partners, AAIB, corporate clients…" />
+
+        <label for="benefit">Special Benefit / Discount</label>
+        <input id="benefit" type="text" placeholder="Example: 5% discount on cash payments" />
+
+        <label for="notes">Campaign Notes</label>
+        <textarea id="notes" placeholder="Optional: wording emphasis, installment note, special client instruction, exclusions from the email body…"></textarea>
+
+        <button class="generate" id="generateBtn" type="button">Create Email Campaign</button>
+        <div class="status" id="status"></div>
+      </div>
+
+      <aside class="card">
+        <h2>EDS output</h2>
+        <p class="sub">The campaign is generated in ChatGPT using the existing EDS workflow and the brochure as the source of truth.</p>
+        <div class="checklist">
+          <div class="check"><div class="tick">✓</div><div><b>Offer Name</b><br><span class="sub">Clean campaign naming from the source.</span></div></div>
+          <div class="check"><div class="tick">✓</div><div><b>Email Subject</b><br><span class="sub">Concise, partner-ready subject line.</span></div></div>
+          <div class="check"><div class="tick">✓</div><div><b>Email Body</b><br><span class="sub">Approved concise Blue Sky Travel structure.</span></div></div>
+          <div class="check"><div class="tick">✓</div><div><b>Source Check</b><br><span class="sub">Shown only for genuine conflicts or missing critical facts.</span></div></div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="foot">EDS Campaign Agent · brochure facts are preserved exactly; missing details are not invented.</div>
+  </main>
+
+  <script>
+    const uploadBtn = document.getElementById("uploadBtn");
+    const libraryBtn = document.getElementById("libraryBtn");
+    const fileInput = document.getElementById("fileInput");
+    const filePill = document.getElementById("filePill");
+    const fileNameEl = document.getElementById("fileName");
+    const audienceEl = document.getElementById("audience");
+    const benefitEl = document.getElementById("benefit");
+    const notesEl = document.getElementById("notes");
+    const generateBtn = document.getElementById("generateBtn");
+    const statusEl = document.getElementById("status");
+
+    let browserFile = null;
+    let chatgptFile = null;
+
+    function showStatus(message, type = "") {
+      statusEl.textContent = message;
+      statusEl.className = "status show" + (type ? " " + type : "");
+    }
+
+    function selectDisplay(name) {
+      fileNameEl.textContent = name || "Selected brochure";
+      filePill.classList.add("show");
+    }
+
+    uploadBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      browserFile = file;
+      chatgptFile = null;
+      selectDisplay(file.name);
+      showStatus("Brochure selected. Add campaign context or create the campaign now.");
+    });
+
+    libraryBtn.addEventListener("click", async () => {
+      const openai = window.openai;
+      if (!openai?.selectFiles) {
+        showStatus("ChatGPT file library is not available here. Use Upload brochure instead.", "error");
+        return;
+      }
+      try {
+        const files = await openai.selectFiles();
+        if (!files?.length) return;
+        chatgptFile = files[0];
+        browserFile = null;
+        selectDisplay(chatgptFile.fileName);
+        showStatus("Brochure selected from ChatGPT.");
+      } catch (error) {
+        showStatus("Could not open the ChatGPT file picker.", "error");
+      }
+    });
+
+    generateBtn.addEventListener("click", async () => {
+      const openai = window.openai;
+      if (!openai?.callTool || !openai?.sendFollowUpMessage || !openai?.getFileDownloadUrl) {
+        showStatus("This ChatGPT surface does not expose the required app APIs yet.", "error");
+        return;
+      }
+      if (!browserFile && !chatgptFile) {
+        showStatus("Choose a brochure first.", "error");
+        return;
+      }
+
+      generateBtn.disabled = true;
+      generateBtn.textContent = "Preparing campaign…";
+      showStatus("Reading brochure and validating the campaign brief…");
+
+      try {
+        let fileId;
+        let fileName;
+        let mimeType;
+
+        if (browserFile) {
+          if (!openai.uploadFile) throw new Error("File upload is unavailable.");
+          const uploaded = await openai.uploadFile(browserFile, { library: false });
+          fileId = uploaded.fileId;
+          fileName = browserFile.name;
+          mimeType = browserFile.type || "";
+        } else {
+          fileId = chatgptFile.fileId;
+          fileName = chatgptFile.fileName || "brochure";
+          mimeType = chatgptFile.mimeType || "";
+        }
+
+        const { downloadUrl } = await openai.getFileDownloadUrl({ fileId });
+        const response = await openai.callTool("extract_brochure", {
+          brochure: {
+            download_url: downloadUrl,
+            file_id: fileId,
+            mime_type: mimeType,
+            file_name: fileName
+          },
+          audience: audienceEl.value.trim(),
+          specialBenefit: benefitEl.value.trim(),
+          notes: notesEl.value.trim()
+        });
+
+        const data = response?.structuredContent;
+        if (!data?.extractedText) {
+          throw new Error("The brochure text could not be extracted.");
+        }
+
+        const prompt = [
+          "New Email Blast Campaign",
+          "",
+          "Use the EDS Campaign Agent workflow and approved concise Blue Sky Travel B2B template.",
+          "Generate exactly: (1) Offer Name, (2) Email Subject, (3) Email Body.",
+          "Add Source Check only if there is a genuine conflict or critical missing source detail.",
+          "Extract offer-specific facts only from the brochure source below. Never invent missing dates, prices, hotels, inclusions, terms, contacts, discounts, or benefits.",
+          "Do not overcrowd the body with hotel/rate/room/flight/inclusion breakdowns unless the campaign notes explicitly request them.",
+          "",
+          "Audience / Client: " + (data.audience || "Travel Partners"),
+          "Special Benefit / Discount: " + (data.specialBenefit || "Use brochure-supported benefit only"),
+          "Campaign Notes: " + (data.notes || "None"),
+          "Brochure filename: " + data.fileName,
+          data.truncated ? "Note: the brochure extraction was truncated after 32,000 characters." : "",
+          "",
+          "=== BROCHURE SOURCE ===",
+          data.extractedText,
+          "=== END SOURCE ==="
+        ].filter(Boolean).join("\n");
+
+        showStatus("Brochure ready. Sending the campaign brief to ChatGPT…");
+        await openai.sendFollowUpMessage({ prompt, scrollToBottom: true });
+        showStatus("Campaign sent to ChatGPT. Continue in the conversation to review the EDS output.", "ok");
+      } catch (error) {
+        showStatus(error?.message || "Could not prepare this campaign.", "error");
+      } finally {
+        generateBtn.disabled = false;
+        generateBtn.textContent = "Create Email Campaign";
+      }
+    });
+  </script>
+</body>
+</html>
