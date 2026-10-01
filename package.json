@@ -1,0 +1,20 @@
+{
+  "name": "eds-campaign-ai-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "EDS Campaign Agent MCP sidebar app for ChatGPT.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.0.1",
+    "@modelcontextprotocol/sdk": "^1.20.2",
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1",
+    "zod": "^3.25.76"
+  }
+}
